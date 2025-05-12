@@ -8,14 +8,14 @@ t0 = start_time()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 print(dir_path)
 
-filename = "MIKRO_UYDU_VC"
+filename = "MIKRO_UYDU_VC2"
 
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 0)
 # gmsh.option.setNumber("General.NumThreads", 8)
 
 gmsh.model.add(filename)
-gmsh.option.setString("Geometry.OCCTargetUnit", "MM")
+gmsh.option.setString("Geometry.OCCTargetUnit", "M")
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,7 +23,7 @@ gmsh.model.occ.importShapes(os.path.join(path, "GeomDir/" + filename + ".stp"))
 gmsh.model.occ.removeAllDuplicates()
 gmsh.model.occ.synchronize()
 
-lc = 2
+lc = 5E-2
 
 # led_tag = 2
 
@@ -34,6 +34,25 @@ lc = 2
 # gmsh.model.mesh.field.setNumber(1, "VOut", lc)
 
 # gmsh.model.mesh.field.setAsBackgroundMesh(1)
+
+# Get bounding box in Z
+entities = gmsh.model.getEntities(dim=3)
+volumes = [e[1] for e in entities if e[0] == 3]
+bbox = gmsh.model.getBoundingBox(3, volumes[0])
+zmin = bbox[2]
+zmax = bbox[5]
+dz = (zmax - zmin) / 10
+xmin = bbox[0]
+xmax = bbox[3]
+dx = (xmax - xmin) / 2
+
+# Define a mesh size field that creates 10 layers in Z
+field_id = gmsh.model.mesh.field.add("MathEval")
+# Mesh size is small in Z, forces Z-layering
+gmsh.model.mesh.field.setString(field_id, "F", f"{dx}")
+
+# Set it as the background mesh field
+gmsh.model.mesh.field.setAsBackgroundMesh(field_id)
 
 gmsh.option.setNumber("Mesh.MeshSizeMax", lc)
 gmsh.option.setNumber("Mesh.Algorithm", 6)

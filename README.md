@@ -10,15 +10,15 @@ We need `helezon` to run the thermal simulations in this project.
 This library can be installed directly with conda. We can make a conda environment for fenicsx and then install this library into it.
 
 ```bash
-conda create -n uydu python=3.13.0
+conda create -n uydu python=3.13.0 -y
 conda activate uydu
-conda install pip
+conda install pip pandas
 conda install -c conda-forge fenics-dolfinx=0.9.0 pyvista=0.44.1 # Linux and macOS
 # conda install -c conda-forge fenics-dolfinx pyvista pyamg # Windows
 ```
 
 We need `helezon` to run the thermal simulations in this project. Go to helezon folder and run
-
+    
 ```bash
 pip3 install -e .
 ```
