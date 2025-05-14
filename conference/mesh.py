@@ -17,11 +17,33 @@ gmsh.option.setNumber("General.Terminal", 0)
 gmsh.model.add(filename)
 gmsh.option.setString("Geometry.OCCTargetUnit", "M")
 
+
+
 path = os.path.dirname(os.path.abspath(__file__))
 
 gmsh.model.occ.importShapes(os.path.join(path, "GeomDir/" + filename + ".stp"))
 gmsh.model.occ.removeAllDuplicates()
 gmsh.model.occ.synchronize()
+
+print(gmsh.model.getEntities(dim=3))
+
+# moving the body to zero in x axis 
+x_shift = 0.17669-2.08176E-5
+gmsh.model.occ.translate(gmsh.model.getEntities(dim=3), x_shift, 0, 0)
+gmsh.model.occ.synchronize()
+
+thermal_pad = True
+thickness = 0.001
+if thermal_pad:
+    # add pad geometry
+    gmsh.model.occ.addBox(0.005, -0.08, 0.0578106, thickness, 0.08*2, 0.187802-0.0578106)
+
+    # shift the rest
+    gmsh.model.occ.translate([(3,2),(3,3)],thickness, 0, 0)
+
+    gmsh.model.occ.synchronize()
+
+
 
 lc = 5E-2
 
