@@ -74,5 +74,8 @@ Q = Q_volumetric(mesh, subdomains, Q_total=params.Q_total, tag=equipment_tag, de
 problem = SteadyState(V, subdomains, boundary_conditions, kappa, u, Q)
 T = problem.solution
 
-xdmf_writer("ResultsDir/T_steady", mesh, T)
+if thermal_pad:
+    xdmf_writer("ResultsDir/T_pad", mesh, T)
+else:
+    xdmf_writer("ResultsDir/T_nopad", mesh, T)
 # vtk_writer("ResultsDir/T_steady", mesh, T)

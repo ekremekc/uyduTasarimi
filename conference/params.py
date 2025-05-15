@@ -2,6 +2,7 @@ kappa = 167.9 # W/mK 167.9
 kappa_pad = 0.2
 Q_total = -15  # W
 thermal_pad = True
+pad_thickness = 0.0025
 
 
 if "__name__" == "__main__":

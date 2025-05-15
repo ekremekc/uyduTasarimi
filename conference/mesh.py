@@ -20,7 +20,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 gmsh.model.occ.importShapes(os.path.join(path, "GeomDir/" + filename + ".stp"))
 
 thermal_pad = params.thermal_pad
-thickness = 0.005
+thickness = params.pad_thickness
 
 if thermal_pad:
     # gmsh.model.occ.removeAllDuplicates()
@@ -64,7 +64,7 @@ volumes = [e[1] for e in entities if e[0] == 3]
 bbox = gmsh.model.getBoundingBox(3, volumes[0])
 zmin = bbox[2]
 zmax = bbox[5]
-dz = (zmax - zmin) / 2
+dz = (zmax - zmin) / 3
 # xmin = bbox[0]
 # xmax = bbox[3]
 # dx = (xmax - xmin) / 2
