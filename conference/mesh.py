@@ -2,47 +2,45 @@ import gmsh
 import os
 import sys
 from helezon.solver_utils import start_time, execution_time
-
+import params
 t0 = start_time()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 print(dir_path)
 
-filename = "MIKRO_UYDU_VC2"
+filename = "MIKRO_UYDU_VC_REORIENTED"
 
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 0)
-# gmsh.option.setNumber("General.NumThreads", 8)
-
 gmsh.model.add(filename)
 gmsh.option.setString("Geometry.OCCTargetUnit", "M")
-
-
 
 path = os.path.dirname(os.path.abspath(__file__))
 
 gmsh.model.occ.importShapes(os.path.join(path, "GeomDir/" + filename + ".stp"))
-gmsh.model.occ.removeAllDuplicates()
+
+thermal_pad = params.thermal_pad
+thickness = 0.005
+
+if thermal_pad:
+    # gmsh.model.occ.removeAllDuplicates()
+
+    # add pad geometry
+    px, py, pz = -0.08, -0.12, 0.005
+    pad = gmsh.model.occ.addBox(px, py, pz, -2*px , 0.01+0.12, thickness)
+    bounding_box_tag = pad
+    # shift the rest
+    gmsh.model.occ.translate([(3,2),(3,3)],0, 0, thickness)
+    gmsh.model.occ.removeAllDuplicates()
+
+
+if not thermal_pad:
+    gmsh.model.occ.removeAllDuplicates()
+
+
 gmsh.model.occ.synchronize()
 
 print(gmsh.model.getEntities(dim=3))
-
-# moving the body to zero in x axis 
-x_shift = 0.17669-2.08176E-5
-gmsh.model.occ.translate(gmsh.model.getEntities(dim=3), x_shift, 0, 0)
-gmsh.model.occ.synchronize()
-
-thermal_pad = True
-thickness = 0.001
-if thermal_pad:
-    # add pad geometry
-    gmsh.model.occ.addBox(0.005, -0.08, 0.0578106, thickness, 0.08*2, 0.187802-0.0578106)
-
-    # shift the rest
-    gmsh.model.occ.translate([(3,2),(3,3)],thickness, 0, 0)
-
-    gmsh.model.occ.synchronize()
-
 
 
 lc = 5E-2
@@ -60,18 +58,21 @@ lc = 5E-2
 # Get bounding box in Z
 entities = gmsh.model.getEntities(dim=3)
 volumes = [e[1] for e in entities if e[0] == 3]
+# if not thermal_pad:
+#     gmsh.model.occ.removeAllDuplicates()
+#     bounding_box_tag = volumes[0]
 bbox = gmsh.model.getBoundingBox(3, volumes[0])
 zmin = bbox[2]
 zmax = bbox[5]
-dz = (zmax - zmin) / 10
-xmin = bbox[0]
-xmax = bbox[3]
-dx = (xmax - xmin) / 2
+dz = (zmax - zmin) / 2
+# xmin = bbox[0]
+# xmax = bbox[3]
+# dx = (xmax - xmin) / 2
 
 # Define a mesh size field that creates 10 layers in Z
 field_id = gmsh.model.mesh.field.add("MathEval")
 # Mesh size is small in Z, forces Z-layering
-gmsh.model.mesh.field.setString(field_id, "F", f"{dx}")
+gmsh.model.mesh.field.setString(field_id, "F", f"{dz}")
 
 # Set it as the background mesh field
 gmsh.model.mesh.field.setAsBackgroundMesh(field_id)
@@ -89,11 +90,23 @@ vol_tags = gmsh.model.getEntities(dim=3)
 # print(sur_tags)
 print(vol_tags)
 
+
+
+if thermal_pad:
+    gmsh.model.addPhysicalGroup(3, [1,4], tag=1) # chasis and solar panel
+    gmsh.model.addPhysicalGroup(3, [2,3], tag=2) # equipment
+    gmsh.model.addPhysicalGroup(3, [5], tag=3) # thermal pad
+
+if not thermal_pad:
+    gmsh.model.addPhysicalGroup(3, [1,4], tag=1) # chasis and solar panel
+    gmsh.model.addPhysicalGroup(3, [2,3], tag=2) # equipment
+
 for surface in sur_tags:
     gmsh.model.addPhysicalGroup(2, [surface[1]], tag=surface[1])
 
-for volume in vol_tags:
-    gmsh.model.addPhysicalGroup(3, [volume[1]], tag=volume[1])
+# for volume in vol_tags:
+#     gmsh.model.addPhysicalGroup(3, [volume[1]], tag=volume[1])
+
 
 gmsh.model.occ.synchronize()
 

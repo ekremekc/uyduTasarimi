@@ -1,7 +1,7 @@
 kappa = 167.9 # W/mK 167.9
+kappa_pad = 0.2
 Q_total = -15  # W
-u_edge = 50  # C
-
+thermal_pad = True
 
 
 if "__name__" == "__main__":
