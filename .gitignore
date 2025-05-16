@@ -14,6 +14,7 @@ __pycache__/
 *.xdmf
 *.bin
 *.bp
+*.msh
 
 
 # Distribution / packaging
