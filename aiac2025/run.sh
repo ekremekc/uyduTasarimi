@@ -3,9 +3,9 @@
 
 #!/bin/bash
 
-start=0.001
-end=0.004
-step=0.0005
+start=0.0001
+end=0.001
+step=0.0001
 
 # Generate the array using seq and printf
 thickness_values=($(seq $start $step $end | xargs printf "%.4f\n"))
