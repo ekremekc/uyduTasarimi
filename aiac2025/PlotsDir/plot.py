@@ -14,20 +14,20 @@ for filename in sorted(os.listdir(".")):
             if len(lines) >= 2:
                 x = float(lines[0].strip())
                 y = float(lines[1].strip())
-                x_vals.append(x)
+                x_vals.append(x*1000)
                 y_vals.append(y)
 
 # Plotting
 plt.plot(x_vals, y_vals, 'o-', label='T_diff')
-plt.xlabel("Thickness (m)")
+plt.xlabel("Thickness (mm)")
 plt.ylabel("Temperature Difference (C)")
 # plt.title("T_diff vs Thickness")
 plt.grid(True)
 # plt.legend()
-plt.gca().invert_xaxis()
+# plt.gca().invert_xaxis()
 plt.tight_layout()
-plt.savefig("T_diff.png")
-# plt.show()
+plt.savefig("T_diff.png", dpi=300)
+plt.show()
 plt.close()
 
 import numpy as np
